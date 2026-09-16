@@ -70,12 +70,12 @@ reports/    Informes de incidentes generados durante las pruebas + capturas
 
 _(se completa a medida que se ejecutan las pruebas — ver `reports/`)_
 
-- [ ] Dashboard de Wazuh operativo con agente reportando
-- [ ] Alerta de fuerza bruta SSH detectada y documentada
+- [x] Dashboard de Wazuh operativo con agente reportando
+- [x] Alerta de fuerza bruta SSH detectada y documentada ([informe](reports/incident-01-ssh-bruteforce.md))
 - [ ] Alerta de escaneo Nmap detectada y documentada
 - [ ] FIM detectando cambios en archivos críticos
 - [ ] Regla custom escrita y probada
-- [ ] Informe de incidente completo con timeline
+- [x] Informe de incidente completo con timeline
 
 ## Disclaimer
 
