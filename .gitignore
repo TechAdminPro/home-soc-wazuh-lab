@@ -1,0 +1,4 @@
+nmap-scan-*.txt
+*.pcap
+.DS_Store
+Thumbs.db

@@ -1,0 +1,36 @@
+<!--
+  Reglas personalizadas para home-soc-wazuh-lab.
+  Copiar en /var/ossec/etc/rules/local_rules.xml en el Wazuh Manager.
+-->
+<group name="local,syslog,firewall,">
+
+  <!-- Regla base: detecta un intento de conexión bloqueada/registrada por ufw -->
+  <rule id="100000" level="3">
+    <if_sid>0</if_sid>
+    <decoded_as>ufw</decoded_as>
+    <description>Evento de firewall UFW registrado.</description>
+  </rule>
+
+  <!-- Regla de correlación: muchos eventos de conexión desde la misma IP en poco tiempo -->
+  <rule id="100001" level="10" frequency="15" timeframe="10">
+    <if_matched_sid>100000</if_matched_sid>
+    <same_source_ip />
+    <description>Posible escaneo de puertos detectado: más de 15 conexiones desde $(srcip) en 10 segundos.</description>
+    <mitre>
+      <id>T1046</id>
+    </mitre>
+    <group>recon,attack,</group>
+  </rule>
+
+  <!-- Regla de correlación: fuerza bruta SSH agresiva (más estricta que la nativa de Wazuh) -->
+  <rule id="100010" level="12" frequency="8" timeframe="30">
+    <if_matched_sid>5710</if_matched_sid>
+    <same_source_ip />
+    <description>Fuerza bruta SSH confirmada: 8+ intentos fallidos desde $(srcip) en 30 segundos.</description>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+    <group>authentication_failures,attack,</group>
+  </rule>
+
+</group>
