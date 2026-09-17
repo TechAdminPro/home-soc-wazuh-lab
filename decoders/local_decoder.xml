@@ -1,0 +1,43 @@
+<!-- Local Decoders -->
+
+<!-- Modify it at your will. -->
+<!-- Copyright (C) 2015, Wazuh Inc. -->
+
+<!--
+  - Allowed static fields:
+  - location   - where the log came from (only on FTS)
+  - srcuser    - extracts the source username
+  - dstuser    - extracts the destination (target) username
+  - user       - an alias to dstuser (only one of the two can be used)
+  - srcip      - source ip
+  - dstip      - dst ip
+  - srcport    - source port
+  - dstport    - destination port
+  - protocol   - protocol
+  - id         - event id
+  - url        - url of the event
+  - action     - event action (deny, drop, accept, etc)
+  - status     - event status (success, failure, etc)
+  - extra_data - Any extra data
+-->
+
+<decoder name="local_decoder_example">
+    <program_name>local_decoder_example</program_name>
+</decoder>
+
+<!-- UFW decoder for modern systemd/rsyslog kernel log output, which drops the
+     classic ring-buffer "[uptime]" bracket that the stock
+     0140-kernel_decoders.xml "ufw" decoder's prematch requires (Ubuntu 22.04+
+     journald/rsyslog default). Child of the stock "kernel" base decoder,
+     deliberately without <type>firewall</type> so it doesn't get captured by
+     Wazuh's category-based firewall rule tree (rule 2 -> 4100 -> ...) instead
+     of the if_sid=0 tree that rules/local_rules.xml rule 100000 relies on.
+     Only extracts srcip/dstip; see rules/local_rules.xml + reports/incident-02
+     for why the matching rule uses decoded_as>kernel< (the parent's name, not
+     this decoder's) plus a <match>UFW </match> text filter. -->
+<decoder name="ufw-nobracket">
+   <parent>kernel</parent>
+   <prematch>UFW </prematch>
+   <regex>SRC=(\S+) DST=(\S+)</regex>
+   <order>srcip, dstip</order>
+</decoder>

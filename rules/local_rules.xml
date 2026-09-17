@@ -1,18 +1,25 @@
 <!--
   Reglas personalizadas para home-soc-wazuh-lab.
   Copiar en /var/ossec/etc/rules/local_rules.xml en el Wazuh Manager.
+  Requiere también decoders/local_decoder.xml (decoder "ufw-nobracket").
 -->
 <group name="local,syslog,firewall,">
 
-  <!-- Regla base: detecta un intento de conexión bloqueada/registrada por ufw -->
+  <!-- Regla base: detecta un evento de firewall UFW registrado por el kernel.
+       decoded_as usa "kernel" (el decoder PADRE), no "ufw-nobracket" (el hijo) -
+       Wazuh compara decoded_as contra el nombre del decoder padre, no el del
+       hijo que hizo la extracción real de campos. Ver reports/incident-02. -->
   <rule id="100000" level="3">
     <if_sid>0</if_sid>
-    <decoded_as>ufw</decoded_as>
+    <decoded_as>kernel</decoded_as>
+    <match>UFW </match>
     <description>Evento de firewall UFW registrado.</description>
   </rule>
 
-  <!-- Regla de correlación: muchos eventos de conexión desde la misma IP en poco tiempo -->
-  <rule id="100001" level="10" frequency="15" timeframe="10">
+  <!-- Regla de correlación: muchos eventos de conexión desde la misma IP en poco tiempo.
+       Umbral 8/20s (no 15/10s) porque el rate-limit por defecto de UFW en modo
+       "low" (3/min, burst 10) nunca entrega más de ~10 eventos de golpe. -->
+  <rule id="100001" level="10" frequency="8" timeframe="20">
     <if_matched_sid>100000</if_matched_sid>
     <same_source_ip />
     <description>Posible escaneo de puertos detectado: más de 15 conexiones desde $(srcip) en 10 segundos.</description>

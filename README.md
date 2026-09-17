@@ -72,9 +72,9 @@ _(se completa a medida que se ejecutan las pruebas — ver `reports/`)_
 
 - [x] Dashboard de Wazuh operativo con agente reportando
 - [x] Alerta de fuerza bruta SSH detectada y documentada ([informe](reports/incident-01-ssh-bruteforce.md))
-- [ ] Alerta de escaneo Nmap detectada y documentada ([investigación en profundidad, 3 causas raíz corregidas, alerta final pendiente](reports/incident-02-nmap-portscan.md))
+- [x] Alerta de escaneo Nmap detectada y documentada ([informe](reports/incident-02-nmap-portscan.md))
 - [x] FIM detectando cambios en archivos críticos ([informe](reports/incident-03-fim-passwd.md))
-- [ ] Regla custom escrita y probada (nmap `100001` con decoder propio ya extrayendo IPs, falta confirmar el disparo en vivo; SSH `100010` no fue necesaria)
+- [x] Regla custom escrita y probada (nmap `100001` confirmada en el log de alertas real; SSH `100010` no fue necesaria — las reglas nativas de Wazuh ya cubrían el caso)
 - [x] Informe de incidente completo con timeline
 
 ## Disclaimer

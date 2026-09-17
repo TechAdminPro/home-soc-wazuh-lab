@@ -5,13 +5,14 @@ Wazuh ya trae reglas out-of-the-box para fuerza bruta SSH (grupo `authentication
 ## Instalación de la regla custom
 
 1. Copia el contenido de [`rules/local_rules.xml`](../rules/local_rules.xml) en `/var/ossec/etc/rules/local_rules.xml` del **manager** (192.168.56.30).
-2. Reinicia el manager:
+2. Copia también [`decoders/local_decoder.xml`](../decoders/local_decoder.xml) en `/var/ossec/etc/decoders/local_decoder.xml` del manager. **Es imprescindible**: el decoder `ufw` de stock de Wazuh espera el formato antiguo del kernel con un contador de uptime entre corchetes, que el Ubuntu moderno de la víctima no emite — sin este decoder propio, la regla `100000`/`100001` nunca se dispara (ver [informe del incidente 02](../reports/incident-02-nmap-portscan.md) para el porqué completo, incluyendo por qué `decoded_as` en la regla apunta a `kernel` y no a `ufw-nobracket`).
+3. Reinicia el manager:
 
 ```bash
 sudo systemctl restart wazuh-manager
 ```
 
-3. Verifica que la sintaxis es correcta:
+4. Verifica que la sintaxis es correcta:
 
 ```bash
 sudo /var/ossec/bin/wazuh-logtest
@@ -24,8 +25,10 @@ Se basa en los logs de conexión que genera el firewall del host víctima (`ipta
 Para que UFW loguee las conexiones:
 
 ```bash
-sudo ufw logging on
+sudo ufw logging low
 ```
+
+`low` basta y no sobrecarga la telemetría, pero aplica un límite de tasa fijo (3/min, burst 10) al propio log — por eso el umbral de la regla `100001` es `frequency="8" timeframe="20"` y no algo más alto: no tiene sentido pedirle a la regla más eventos de los que UFW puede físicamente entregar en ese modo. Subir a `ufw logging high` elimina el límite pero loguea *todo* el tráfico (no solo lo bloqueado) y puede saturar la cola del agente con un escaneo agresivo — evítalo salvo que lo necesites puntualmente.
 
 Y añade el log de ufw como fuente en `ossec.conf` del agente víctima:
 
